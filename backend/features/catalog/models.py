@@ -86,3 +86,27 @@ class FormaPago(SQLModel, table=True):
     codigo: str = Field(sa_column=Column(String(20), primary_key=True))
     descripcion: Optional[str] = Field(default=None)
     habilitado: bool = Field(default=True, nullable=False)
+
+
+class Ingrediente(SQLModel, table=True):
+    __tablename__ = "ingrediente"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str = Field(sa_column=Column(String(200), nullable=False, unique=True))
+    descripcion: Optional[str] = Field(default=None, sa_column=Column(Text))
+    es_alergeno: bool = Field(default=False, nullable=False)
+
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True), nullable=False)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True), nullable=False)
+    )
+    deleted_at: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime(timezone=True))
+    )
+
+    # Reverse relationship
+    productos: List[ProductoIngrediente] = Relationship(back_populates="ingrediente")
