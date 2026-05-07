@@ -86,7 +86,29 @@ def run_seed():
             session.add(UsuarioRol(usuario_id=admin.id, rol_id=admin_rol.id))
             session.commit()
 
-        print("Seed completed successfully.")
+        # ── 6. Usuario Cliente (para pruebas) ─────────────────────────
+        client_email = "cliente@foodstore.com"
+        cliente = session.exec(select(Usuario).where(Usuario.email == client_email)).first()
+        if not cliente:
+            cliente = Usuario(
+                nombre="Juan",
+                apellido="Perez",
+                email=client_email,
+                celular="1122334455",
+                password_hash=get_password_hash("cliente123"),
+            )
+            session.add(cliente)
+            session.commit()
+            session.refresh(cliente)
+
+            # Asignar rol CLIENT
+            client_rol = session.exec(select(Rol).where(Rol.nombre == "CLIENT")).first()
+            session.add(UsuarioRol(usuario_id=cliente.id, rol_id=client_rol.id))
+            session.commit()
+
+        print("✅ Seed completado exitosamente.")
+        print(f"   👑 Admin:   admin@foodstore.com   / admin123")
+        print(f"   👤 Cliente: cliente@foodstore.com / cliente123")
 
 
 run_seed()
