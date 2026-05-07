@@ -1,18 +1,24 @@
 #!/bin/bash
 set -e
 
-echo "Waiting for postgres to be ready..."
-# Simple wait loop (in production, use a proper wait-for-it script)
-sleep 5
+echo "⏳ Esperando que PostgreSQL esté disponible..."
 
-echo "Generating Alembic Migrations..."
-alembic revision --autogenerate -m "Auto" || true
+# Espera activa hasta que pg_isready responda OK
+until pg_isready -h db -p 5432 -U postgres; do
+  echo "   PostgreSQL no está listo aún, reintentando en 2 segundos..."
+  sleep 2
+done
 
-echo "Running Alembic Migrations..."
+echo "✅ PostgreSQL está listo."
+
+echo "🔄 Generando migraciones Alembic..."
+alembic revision --autogenerate -m "auto" || true
+
+echo "⬆️  Aplicando migraciones..."
 alembic upgrade head
 
-echo "Running Seed Script..."
+echo "🌱 Corriendo seed..."
 python seed/run_seed.py
 
-echo "Starting Uvicorn..."
+echo "🚀 Iniciando servidor..."
 exec uvicorn main:app --host 0.0.0.0 --port 8000 --reload
