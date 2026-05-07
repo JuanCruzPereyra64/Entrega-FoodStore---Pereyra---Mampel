@@ -114,16 +114,23 @@ const ProductoModal = ({ editing, categorias, onClose, onSaved }: any) => {
   const [form, setForm] = useState({
     nombre: editing?.nombre || '',
     descripcion: editing?.descripcion || '',
-    precio_base: editing?.precio_base || 0,
+    precio_base: editing?.precio_base?.toString() || '',
     imagen_url: editing?.imagen_url || '',
-    stock_cantidad: editing?.stock_cantidad || 0,
+    stock_cantidad: editing?.stock_cantidad?.toString() || '',
     categoria_ids: editing?.categoria_ids || [],
   })
 
   const saveMutation = useMutation({
-    mutationFn: () => editing
-      ? updateProductoApi(editing.id, form)
-      : createProductoApi(form),
+    mutationFn: () => {
+      const payload = {
+        ...form,
+        precio_base: Number(form.precio_base) || 0,
+        stock_cantidad: Number(form.stock_cantidad) || 0
+      }
+      return editing
+        ? updateProductoApi(editing.id, payload)
+        : createProductoApi(payload)
+    },
     onSuccess: onSaved,
   })
 
@@ -141,12 +148,18 @@ const ProductoModal = ({ editing, categorias, onClose, onSaved }: any) => {
           <div><label>Descripción</label>
             <input value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} /></div>
           <div><label>Precio</label>
-            <input type="number" value={form.precio_base} onChange={e => setForm(f => ({ ...f, precio_base: Number(e.target.value) }))} /></div>
+            <input type="number" value={form.precio_base} onChange={e => setForm(f => ({ ...f, precio_base: e.target.value }))} /></div>
           <div><label>Stock</label>
-            <input type="number" value={form.stock_cantidad} onChange={e => setForm(f => ({ ...f, stock_cantidad: Number(e.target.value) }))} /></div>
+            <input type="number" value={form.stock_cantidad} onChange={e => setForm(f => ({ ...f, stock_cantidad: e.target.value }))} /></div>
           <div><label>URL Imagen</label>
             <input value={form.imagen_url} onChange={e => setForm(f => ({ ...f, imagen_url: e.target.value }))} /></div>
         </div>
+
+        {saveMutation.isError && (
+          <div style={{ color: '#fca5a5', marginTop: '1rem', fontSize: '0.9rem' }}>
+            Error al guardar: {(saveMutation.error as any)?.response?.data?.detail || 'Revisá los datos ingresados.'}
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
           <button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>

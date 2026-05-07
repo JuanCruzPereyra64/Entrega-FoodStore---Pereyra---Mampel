@@ -18,41 +18,52 @@ const queryClient = new QueryClient({
   }
 })
 
+// Wrapper que redirige al login si no hay token
 const PrivatePage = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore(s => s.token)
-  return token ? <MainLayout>{children}</MainLayout> : <Navigate to="/login" replace />
+  return token
+    ? <MainLayout>{children}</MainLayout>
+    : <Navigate to="/login" replace />
+}
+
+// Wrapper que solo permite el acceso a roles admin
+const AdminPage = ({ children }: { children: React.ReactNode }) => {
+  const { token, isAdmin } = useAuthStore()
+  if (!token) return <Navigate to="/login" replace />
+  if (!isAdmin()) return <Navigate to="/catalogo" replace />
+  return <MainLayout>{children}</MainLayout>
 }
 
 export const App = () => {
-  const token = useAuthStore((state) => state.token)
+  const { token, isAdmin } = useAuthStore()
+  const defaultPath = token ? (isAdmin() ? '/admin' : '/catalogo') : '/login'
 
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/" />} />
+          {/* Login */}
+          <Route
+            path="/login"
+            element={!token ? <LoginPage /> : <Navigate to={defaultPath} replace />}
+          />
 
-          <Route path="/" element={
-            <PrivatePage>
-              <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-                <p style={{ fontSize: '4rem', marginBottom: '1rem' }}>🍔</p>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: '700' }}>¡Bienvenido a Food Store v5.0!</h1>
-                <p style={{ color: '#94a3b8', marginTop: '1rem', fontSize: '1.1rem' }}>
-                  Seleccioná una sección del menú lateral para comenzar.
-                </p>
-              </div>
-            </PrivatePage>
-          } />
+          {/* Home → redirige según rol */}
+          <Route path="/" element={<Navigate to={defaultPath} replace />} />
 
-          <Route path="/catalogo" element={<PrivatePage><CatalogoPage /></PrivatePage>} />
-          <Route path="/checkout" element={<PrivatePage><CheckoutPage /></PrivatePage>} />
-          <Route path="/pedidos" element={<PrivatePage><PedidosPage /></PrivatePage>} />
-          <Route path="/insumos" element={<PrivatePage><InsumosPage /></PrivatePage>} />
-          <Route path="/admin" element={<PrivatePage><DashboardPage /></PrivatePage>} />
-          <Route path="/admin/productos" element={<PrivatePage><ProductosAdminPage /></PrivatePage>} />
-          <Route path="/admin/stock" element={<PrivatePage><StockPage /></PrivatePage>} />
+          {/* Rutas de Cliente */}
+          <Route path="/catalogo"  element={<PrivatePage><CatalogoPage /></PrivatePage>} />
+          <Route path="/pedidos"   element={<PrivatePage><PedidosPage /></PrivatePage>} />
+          <Route path="/checkout"  element={<PrivatePage><CheckoutPage /></PrivatePage>} />
 
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Rutas exclusivas de Admin */}
+          <Route path="/insumos"         element={<AdminPage><InsumosPage /></AdminPage>} />
+          <Route path="/admin"           element={<AdminPage><DashboardPage /></AdminPage>} />
+          <Route path="/admin/productos" element={<AdminPage><ProductosAdminPage /></AdminPage>} />
+          <Route path="/admin/stock"     element={<AdminPage><StockPage /></AdminPage>} />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to={defaultPath} replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
