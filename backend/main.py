@@ -32,6 +32,7 @@ from features.auth.router import router as auth_router
 from features.users.router import router as users_router
 from features.catalog.router import cat_router, prod_router, insumos_router, formas_pago_router
 from features.orders.router import router as orders_router
+from features.orders.router_pago import router as pagos_router
 from features.admin.router import router as admin_router
 
 PREFIX = settings.API_V1_STR
@@ -43,5 +44,6 @@ app.include_router(prod_router, prefix=PREFIX)
 app.include_router(insumos_router, prefix=PREFIX)
 app.include_router(formas_pago_router, prefix=PREFIX)
 app.include_router(orders_router, prefix=PREFIX)
+app.include_router(pagos_router, prefix=PREFIX)
 app.include_router(admin_router, prefix=PREFIX)
 

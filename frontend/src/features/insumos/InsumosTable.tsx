@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getInsumos, createInsumo, updateInsumo, deleteInsumo, exportInsumos } from '@/shared/api/insumos'
+import { getInsumosApi as getInsumos, createInsumoApi as createInsumo, deleteInsumoApi as deleteInsumo, exportInsumosApi as exportInsumos } from '@/shared/api/api'
 
 export const InsumosTable = () => {
   const [page, setPage] = useState(0)
@@ -13,7 +13,7 @@ export const InsumosTable = () => {
 
   const { data, isLoading } = useQuery({
     queryKey: ['insumos', page, search],
-    queryFn: () => getInsumos(page * limit, limit, search),
+    queryFn: () => getInsumos({ skip: page * limit, limit, search }),
     keepPreviousData: true
   })
 

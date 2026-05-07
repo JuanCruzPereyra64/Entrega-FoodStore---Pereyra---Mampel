@@ -7,6 +7,7 @@ import { PedidosPage } from '@/pages/pedidos'
 import { DashboardPage } from '@/pages/admin/dashboard'
 import { StockPage } from '@/pages/admin/stock'
 import { ProductosAdminPage } from '@/pages/admin/productos'
+import { CheckoutPage } from '@/pages/checkout'
 import { MainLayout } from '@/widgets/layout/MainLayout'
 import { useAuthStore } from '@/shared/lib/authStore'
 import '../index.css'
@@ -44,6 +45,7 @@ export const App = () => {
           } />
 
           <Route path="/catalogo" element={<PrivatePage><CatalogoPage /></PrivatePage>} />
+          <Route path="/checkout" element={<PrivatePage><CheckoutPage /></PrivatePage>} />
           <Route path="/pedidos" element={<PrivatePage><PedidosPage /></PrivatePage>} />
           <Route path="/insumos" element={<PrivatePage><InsumosPage /></PrivatePage>} />
           <Route path="/admin" element={<PrivatePage><DashboardPage /></PrivatePage>} />

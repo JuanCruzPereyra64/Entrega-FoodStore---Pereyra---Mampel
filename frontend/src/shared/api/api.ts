@@ -139,6 +139,12 @@ export const getHistorialApi = async (id: number) => {
   return data
 }
 
+// ── Pagos ─────────────────────────────────────────────────────────────────────
+export const procesarPagoApi = async (payload: any) => {
+  const { data } = await apiClient.post('/pagos/procesar', payload)
+  return data
+}
+
 // ── Admin ─────────────────────────────────────────────────────────────────────
 export const getDashboardApi = async () => {
   const { data } = await apiClient.get('/admin/dashboard')
